@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Interactive Form Validation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        
+        form {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 320px;
+        }
+        
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+        
+        input.valid {
+            border-color: #28a745;
+        }
+        
+        input.invalid {
+            border-color: #dc3545;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: 4px;
+            position: absolute;
+            bottom: -18px;
+            left: 0;
+        }
+        
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #4a90e2;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        button:disabled {
+            background: #a0c4ff;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+
+    <form id="registrationForm" novalidate>
+        <h2>Register</h2>
+
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" required />
+            <div class="error-message" id="nameError"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" name="email" required />
+            <div class="error-message" id="emailError"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password *</label>
+            <input type="password" id="password" name="password" required />
+            <div class="error-message" id="passwordError"></div>
+        </div>
+
+        <button type="submit" disabled>Submit</button>
+    </form>
+
+    <script>
+        const form = document.getElementById('registrationForm');
+        const nameInput = form.name;
+        const emailInput = form.email;
+        const passwordInput = form.password;
+
+        const nameError = document.getElementById('nameError');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+
+        const submitButton = form.querySelector('button');
+
+        // Validation functions
+        function validateName() {
+            const name = nameInput.value.trim();
+            if (name.length === 0) {
+                nameError.textContent = 'Name is required.';
+                nameInput.classList.add('invalid');
+                nameInput.classList.remove('valid');
+                return false;
+            } else if (name.length < 3) {
+                nameError.textContent = 'Name must be at least 3 characters.';
+                nameInput.classList.add('invalid');
+                nameInput.classList.remove('valid');
+                return false;
+            }
+            nameError.textContent = '';
+            nameInput.classList.remove('invalid');
+            nameInput.classList.add('valid');
+            return true;
+        }
+
+        function validateEmail() {
+            const email = emailInput.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (email.length === 0) {
+                emailError.textContent = 'Email is required.';
+                emailInput.classList.add('invalid');
+                emailInput.classList.remove('valid');
+                return false;
+            } else if (!emailRegex.test(email)) {
+                emailError.textContent = 'Please enter a valid email.';
+                emailInput.classList.add('invalid');
+                emailInput.classList.remove('valid');
+                return false;
+            }
+            emailError.textContent = '';
+            emailInput.classList.remove('invalid');
+            emailInput.classList.add('valid');
+            return true;
+        }
+
+        function validatePassword() {
+            const password = passwordInput.value;
+            if (password.length === 0) {
+                passwordError.textContent = 'Password is required.';
+                passwordInput.classList.add('invalid');
+                passwordInput.classList.remove('valid');
+                return false;
+            } else if (password.length < 6) {
+                passwordError.textContent = 'Password must be at least 6 characters.';
+                passwordInput.classList.add('invalid');
+                passwordInput.classList.remove('valid');
+                return false;
+            }
+            passwordError.textContent = '';
+            passwordInput.classList.remove('invalid');
+            passwordInput.classList.add('valid');
+            return true;
+        }
+
+        function checkFormValidity() {
+            const isNameValid = validateName();
+            const isEmailValid = validateEmail();
+            const isPasswordValid = validatePassword();
+
+            submitButton.disabled = !(isNameValid && isEmailValid && isPasswordValid);
+        }
+
+        // Add event listeners
+        nameInput.addEventListener('input', () => {
+            validateName();
+            checkFormValidity();
+        });
+
+        emailInput.addEventListener('input', () => {
+            validateEmail();
+            checkFormValidity();
+        });
+
+        passwordInput.addEventListener('input', () => {
+            validatePassword();
+            checkFormValidity();
+        });
+
+        form.addEventListener('submit', e => {
+            e.preventDefault(); // Prevent actual submission
+
+            if (!submitButton.disabled) {
+                alert('Form submitted successfully!');
+                form.reset();
+                // Reset validation state
+                [nameInput, emailInput, passwordInput].forEach(input => {
+                    input.classList.remove('valid', 'invalid');
+                });
+                submitButton.disabled = true;
+            }
+        });
+
+        // Initial check in case of pre-filled inputs
+        checkFormValidity();
+    </script>
+</body>
+
+</html>
